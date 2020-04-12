@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    {% load rbac %}
+    <div class="luffy-container">
+    <div class="form-inline">
+        <div class="btn-group" style="margin: 5px 0">
+
+
+            {% if request|has_permission:'web:customer_add' %}
+                <a class="btn btn-success" href="{% url 'web:customer_add' %}">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i> 添加客户
+                </a>
+            {% endif %}
+
+        </div>
+
+        <form action="" class="pull-right">
+          <div class="form-group " style="margin: 5px 0">
+            <select name="search_field" id="search_field" class="form-control">
+              <option value="level__contains">等级</option>
+              <option value="name__contains">姓名</option>
+{#                {% if role == "Boss" %}#}
+{#              <option value="name__consultant.name">销售员</option>#}
+{#                {% endif %}#}
+              <!--  search_field:name  kw:1111  filter(name=1111) -->
+            </select><input type="text" class="form-control" id="key_word" placeholder="请输入搜索内容" name="kw"><button type="submit" class="btn btn-default">搜索</button>
+          </div>
+
+        </form>
+        </div>
+    </div>
+
+
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+
+{#                <th class="hidden"></th>#}
+                <th>序号</th>
+                <th>等级</th>
+            {% if role == "Boss" %}
+                <th>销售员</th>
+            {% endif %}
+                <th>姓名</th>
+                <th>性别</th>
+                <th>公司名称</th>
+                <th>职位</th>
+                <th>手机号</th>
+                <th>跟进记录</th>
+                <th>客户来源</th>
+                <th>备注</th>
+                <th>咨询日期</th>
+                {% if request|has_permission:'web:customer_edit' or request|has_permission:'web:customer_del' %}
+                    <th>选项</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in data_list %}
+                <tr>
+{#                      <td class="hidden">#}
+{#                          <input type="checkbox" name="cids" value="{{ row.pk }}">#}
+{#                      </td>#}
+                      <td>{{ forloop.counter }}</td>
+
+                      <td>{{ row.status_show }}</td>
+                    {% if role == "Boss" %}
+                      <td>{{ row.consultant }}</td>
+                    {% endif %}
+                      <td>{{ row.name }}</td>
+                      <td>{{ row.get_sex_display }}</td>
+                      <td>{{ row.company }}</td>
+                      <td>{{ row.position|default:'' }}</td>
+                      <td>{{ row.phone }}</td>
+                      <td>
+{#                           <a href="">查看详情</a>#}
+                           <a href="{% url 'web:record' %}?cid={{ row.pk }}">查看详情</a>
+{#                           <a href="{% url 'web:record_edit' row.pk %}">添加跟进</a>#}
+{#                           <a href="{% url "web:record_add" %}">查看详情</a>#}
+                      </td>
+                      <td>{{ row.source|default:'无'}}</td>
+                      <td>{{ row.remark }}</td>
+                      <td>{{ row.date|date:"Y-m-d" }}</td>
+                    {% if request|has_permission:'web:customer_edit' or request|has_permission:'web:customer_del' %}
+                        <td>
+                            {% if request|has_permission:'web:customer_edit' %}
+                                <a style="color: #333333;" href="{% url "web:customer_edit" row.id %}">
+                                    <i class="fa fa-edit" aria-hidden="true"></i></a>
+                            {% endif %}
+
+                            {% if request|has_permission:'web:customer_del' %}
+                                <a style="color: #d9534f;" href="{% url "web:customer_del" row.id %}"><i
+                                        class="fa fa-trash-o"></i></a>
+                            {% endif %}
+
+                        </td>
+                    {% endif %}
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+    {{ page_html }}
+
+    </div>
+{% endblock %}

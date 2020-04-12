@@ -1,0 +1,82 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+{% load rbac %}
+    <div class="luffy-container">
+        <div class="form-inline">
+            <div style="margin: 10px 0;" class="pull-left">
+                <a class="btn btn-success" href="{% url "web:record_add" %}">
+                    <i class="fa fa-plus-square" aria-hidden="true"></i> 添加跟进记录
+                </a>
+            </div>
+
+                <form action="" class="pull-right">
+                    <div class="form-group " style="margin: 10px 0">
+                        <select name="search_field" id="search_field" class="form-control">
+{#                            <option value="customer_id__contains">姓名</option>#}
+{#                            <option value="consultant_id__contains">跟进人</option>#}
+                            <option value="status__contains">状态</option>
+                            <!--  search_field:name  kw:1111  filter(name=1111) -->
+                        </select><input type="text" class="form-control" id="key_word" placeholder="请输入搜索内容" name="kw">
+                        <button type="submit" class="btn btn-default">搜索</button>
+                    </div>
+
+                </form>
+
+        </div>
+
+
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>序号</th>
+                {% if role == "Boss" %}
+                <th>跟进人</th>
+                {% endif %}
+                <th>客户姓名</th>
+                <th>跟进内容</th>
+                <th>跟进状态</th>
+                <th>跟进日期</th>
+                {% if request|has_permission:'web:record_edit' or request|has_permission:'web:record_del' %}
+                    <th>选项</th>
+                {% endif %}
+            </tr>
+            </thead>
+            <tbody>
+            {% for row in data_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    {% if role == "Boss" %}
+                    <td>{{ row.consultant.name }}</td>
+                    {% endif %}
+                    <td>{{ row.customer.name }}</td>
+                    <td>{{ row.note|default:'无'}}</td>
+                    <td>{{ row.show_status }}</td>
+                    <td>{{ row.date|date:"Y-m-d H:i:s" }}</td>
+                {% if request|has_permission:'web:record_edit' or request|has_permission:'web:record_del' %}
+                    <td>
+                        {% if request|has_permission:'web:record_edit' %}
+                                <a style="color: #333333;" href="{% url "web:record_edit" row.id %}">
+                            <i class="fa fa-edit" aria-hidden="true"></i></a>
+                            {% endif %}
+
+                            {% if request|has_permission:'web:record_del' %}
+                                <a style="color: #d9534f;" href="{% url "web:record_del" row.id %}"><i
+                                        class="fa fa-trash-o"></i></a>
+                            {% endif %}
+
+                    </td>
+                {% endif %}
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ page_html }}
+    </div>
+{% endblock %}
+
+
+
+
+
